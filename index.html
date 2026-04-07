@@ -587,7 +587,7 @@ input.err, select.err, textarea.err { border-color: var(--error); background: #f
       </div>
       <div class="stat-card">
         <div class="stat-icon">🏥</div>
-        <div class="stat-val">Sigorta</div>
+        <div class="stat-val" style="font-size:20px;line-height:1.2;margin-bottom:6px">Ekstra Özel Sigorta</div>
         <div class="stat-lbl">Tamamlayıcı Sağlık (1 yıl sonra)</div>
       </div>
     </div>
@@ -1008,9 +1008,9 @@ L.marker([39.372,30.538], {icon: mkIcon('#e67e22',14)})
 
 
 
-// Haritayı tüm noktalara sığdır
+// Haritayı şehir içindeki duraklara (Tepebaşı/Odunpazarı) daha yakından odakla
 map.fitBounds([
-  [39.37, 30.15], [39.80, 31.60]
+  [39.720, 30.460], [39.800, 30.670]
 ], {padding:[20,20]});
 
 } // end map init
