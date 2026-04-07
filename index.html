@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teknika Plast – Eskişehir Fabrikası İş Başvuru Formu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<style>
+:root {
+  --teal:       #0d8f7e;
+  --teal-dark:  #0a6e60;
+  --teal-light: #14b3a0;
+  --teal-pale:  #e6f6f4;
+  --navy:       #1a3150;
+  --navy-mid:   #254671;
+  --navy-light: #2f5a8e;
+  --white:      #ffffff;
+  --gray-50:    #f7f9fc;
+  --gray-100:   #eef1f6;
+  --gray-200:   #dce2ec;
+  --gray-400:   #8d9bb3;
+  --gray-600:   #4a5a72;
+  --gray-800:   #1e2a3a;
+  --orange:     #e07b1a;
+  --success:    #198a5e;
+  --error:      #c0392b;
+  --radius-sm:  6px;
+  --radius:     12px;
+  --radius-lg:  18px;
+  --shadow:     0 2px 16px rgba(26,49,80,0.10);
+  --shadow-lg:  0 8px 40px rgba(26,49,80,0.16);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--gray-50);
+  color: var(--gray-800);
+  min-height: 100vh;
+  line-height: 1.5;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+.hero-inner, .hero-stats, .container, .header-inner, .map-table-grid, .info-grid, .job-strip, .form-body {
+  max-width: 100%;
+}
+img, svg, table { max-width: 100%; }
+@media (max-width: 480px) {
+  .hero-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-val { font-size: 22px; }
+  .hero h1 { font-size: 26px; }
+  .form-head { padding: 20px 16px; }
+  .form-body { padding: 20px 14px; }
+  .header-inner { padding: 12px 14px; gap: 10px; }
+  .header-info .pos { font-size: 11px; }
+  .wa-share-bar { padding: 12px 14px; }
+  .btn-submit { padding: 13px 28px; font-size: 14px; }
+}
+
+/* ── LOADING ── */
+#loading {
+  display: none; position: fixed; inset: 0;
+  background: rgba(26,49,80,0.65); z-index: 9999;
+  align-items: center; justify-content: center; flex-direction: column; gap: 16px;
+  color: white; font-weight: 600; font-size: 15px; backdrop-filter: blur(3px);
+}
+#loading.active { display: flex; }
+.spinner {
+  width: 44px; height: 44px;
+  border: 4px solid rgba(255,255,255,0.2);
+  border-top-color: var(--teal-light);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── HEADER ── */
+.site-header {
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+  position: sticky; top: 0; z-index: 500;
+  box-shadow: 0 1px 12px rgba(26,49,80,0.08);
+}
+.header-inner {
+  max-width: 1120px; margin: 0 auto;
+  padding: 14px 24px;
+  display: flex; align-items: center; gap: 16px;
+}
+.header-logo img { height: 38px; display: block; }
+.header-sep { width: 1px; height: 32px; background: var(--gray-200); }
+.header-info { display: flex; flex-direction: column; gap: 1px; }
+.header-info .pos { font-size: 13px; font-weight: 700; color: var(--navy); }
+.header-info .loc { font-size: 11px; color: var(--gray-400); font-weight: 500; letter-spacing: 0.3px; }
+.header-right { margin-left: auto; }
+.badge-open {
+  background: var(--teal-pale);
+  color: var(--teal-dark);
+  font-size: 11px; font-weight: 700;
+  padding: 5px 14px; border-radius: 20px;
+  border: 1.5px solid var(--teal-light);
+  letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap;
+}
+
+/* ── HERO ── */
+.hero {
+  background: var(--navy);
+  position: relative; overflow: hidden;
+  padding: 64px 24px 56px;
+  color: white;
+}
+/* Geometric product-inspired SVG background */
+.hero-bg {
+  position: absolute; inset: 0; pointer-events: none;
+  overflow: hidden;
+}
+.hero-bg svg { width: 100%; height: 100%; opacity: 0.06; }
+.hero-inner {
+  max-width: 1120px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;
+  position: relative; z-index: 1;
+}
+@media (max-width: 768px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 32px; }
+}
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(13,143,126,0.2);
+  color: var(--teal-light);
+  font-size: 11px; font-weight: 700;
+  padding: 5px 14px; border-radius: 20px;
+  border: 1px solid rgba(20,179,160,0.3);
+  letter-spacing: 1px; text-transform: uppercase;
+  margin-bottom: 18px;
+}
+.hero-tag .dot { width: 6px; height: 6px; background: var(--teal-light); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+.hero h1 {
+  font-size: clamp(26px, 3.5vw, 42px);
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 12px;
+  letter-spacing: -0.3px;
+}
+.hero h1 span { color: var(--teal-light); }
+.hero-desc {
+  font-size: 14px; color: rgba(255,255,255,0.65);
+  line-height: 1.7; margin-bottom: 28px;
+  max-width: 440px;
+}
+.hero-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--teal);
+  color: white; font-weight: 600; font-size: 14px;
+  padding: 13px 26px; border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 4px 16px rgba(13,143,126,0.4);
+}
+.hero-cta:hover { background: var(--teal-dark); transform: translateY(-1px); }
+.hero-cta svg { width: 16px; height: 16px; fill: white; }
+
+/* Stat cards in hero */
+.hero-stats {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+}
+.stat-card {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  backdrop-filter: blur(4px);
+  transition: background 0.2s;
+}
+.stat-card:hover { background: rgba(255,255,255,0.11); }
+.stat-icon { font-size: 22px; margin-bottom: 10px; }
+.stat-val {
+  font-size: 28px; font-weight: 700;
+  color: var(--teal-light);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.stat-lbl { font-size: 12px; color: rgba(255,255,255,0.6); font-weight: 500; }
+
+/* Product shapes decorative (hero right side mobile hidden) */
+.hero-product-visual {
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+@media (max-width: 768px) { .hero-product-visual { display: none; } }
+
+/* ── CONTAINER ── */
+.container { max-width: 1120px; margin: 0 auto; padding: 44px 20px 80px; }
+
+/* ── SECTION HEADING ── */
+.sec-head {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 22px;
+}
+.sec-head-line { width: 3px; height: 26px; background: var(--teal); border-radius: 2px; flex-shrink: 0; }
+.sec-head h2 { font-size: 18px; font-weight: 700; color: var(--navy); letter-spacing: -0.2px; }
+
+/* ── JOB INFO STRIP ── */
+.job-strip {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  background: var(--white); border-radius: var(--radius);
+  padding: 20px 24px; box-shadow: var(--shadow);
+  margin-bottom: 36px;
+  border-left: 4px solid var(--teal);
+}
+.job-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; padding: 4px 12px;
+  border-radius: 24px; background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  color: var(--gray-600); font-weight: 500;
+}
+.job-item .ji-icon { font-size: 15px; }
+.job-item strong { color: var(--navy); }
+
+/* ── MAP + TABLE ── */
+.map-table-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  margin-bottom: 36px;
+}
+@media (max-width: 800px) { .map-table-grid { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.card-head {
+  background: var(--navy);
+  color: white; padding: 13px 20px;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  display: flex; align-items: center; gap: 8px;
+}
+.card-head .ch-dot { width: 7px; height: 7px; background: var(--teal-light); border-radius: 50%; }
+
+#map { height: 480px; width: 100%; }
+.map-note {
+  padding: 9px 16px; font-size: 12px;
+  color: var(--gray-600); background: var(--teal-pale);
+  border-top: 1px solid rgba(13,143,126,0.15);
+}
+
+.route-table-wrap { overflow-x: auto; }
+.route-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.route-table thead th {
+  background: var(--navy-mid); color: white;
+  padding: 10px 14px; text-align: left;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.route-table tbody td { padding: 9px 14px; border-bottom: 1px solid var(--gray-100); vertical-align: top; }
+.route-table tbody tr:last-child td { border-bottom: none; }
+.route-table tbody tr:hover td { background: var(--teal-pale); }
+.route-badge {
+  display: inline-block; background: var(--navy); color: white;
+  font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px;
+  white-space: nowrap;
+}
+.stop-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.chip {
+  background: var(--gray-100); color: var(--navy);
+  font-size: 11px; font-weight: 600;
+  padding: 2px 8px; border-radius: 12px; white-space: nowrap;
+}
+.chip.hi { background: var(--teal); color: white; }
+
+/* ── COVERAGE ── */
+.coverage-card {
+  background: var(--white); border-radius: var(--radius);
+  box-shadow: var(--shadow); overflow: hidden; margin-bottom: 36px;
+}
+.cov-inner { padding: 20px 24px; }
+.cov-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.cov-item {
+  padding: 8px 18px; border-radius: 24px;
+  font-size: 13px; font-weight: 600;
+  display: flex; align-items: center; gap: 6px;
+}
+.cov-item.act { background: var(--teal-pale); color: var(--teal-dark); border: 1.5px solid rgba(13,143,126,0.25); }
+.cov-item.pot { background: #fff8ed; color: var(--orange); border: 1.5px dashed var(--orange); }
+.cov-note {
+  margin-top: 14px; font-size: 12px; color: var(--gray-600);
+  padding: 10px 14px; background: var(--gray-50);
+  border-radius: var(--radius-sm); display: flex; gap: 8px;
+}
+
+/* ── FORM ── */
+.form-card {
+  background: var(--white); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg); overflow: hidden;
+}
+.form-head {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+  padding: 32px 36px; color: white; position: relative; overflow: hidden;
+}
+.form-head::after {
+  content: '';
+  position: absolute; right: -30px; top: -30px;
+  width: 200px; height: 200px;
+  border: 40px solid rgba(13,143,126,0.12);
+  border-radius: 50%;
+}
+.form-head h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.3px; }
+.form-head p { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.6; max-width: 520px; }
+.form-body { padding: 36px 36px; }
+@media (max-width: 640px) { .form-body { padding: 24px 18px; } .form-head { padding: 24px 20px; } }
+
+.form-sec {
+  margin-bottom: 36px; padding-bottom: 36px;
+  border-bottom: 1px solid var(--gray-100);
+}
+.form-sec:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.form-sec-title {
+  font-size: 13px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px;
+  color: var(--teal-dark); margin-bottom: 20px;
+  display: flex; align-items: center; gap: 10px;
+}
+.form-sec-title .sn {
+  width: 26px; height: 26px; background: var(--teal);
+  color: white; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; flex-shrink: 0;
+}
+
+.fg { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.fg.one { grid-template-columns: 1fr; }
+.fg.three { grid-template-columns: 1fr 1fr 1fr; }
+@media (max-width: 600px) { .fg, .fg.three { grid-template-columns: 1fr; } }
+.span2 { grid-column: 1 / -1; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+label.lbl { font-size: 12px; font-weight: 600; color: var(--gray-600); letter-spacing: 0.2px; }
+label.lbl .req { color: var(--teal); margin-left: 2px; }
+label.lbl .hint { font-weight: 400; color: var(--gray-400); font-size: 11px; }
+
+input[type=text], input[type=date], input[type=tel], select, textarea {
+  width: 100%; padding: 10px 13px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; color: var(--gray-800);
+  background: var(--gray-50);
+  transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+  outline: none; -webkit-appearance: none; appearance: none;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--teal);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(13,143,126,0.10);
+}
+input::placeholder, textarea::placeholder { color: var(--gray-400); font-size: 13px; }
+textarea { resize: vertical; min-height: 88px; }
+input.err, select.err, textarea.err { border-color: var(--error); background: #fff5f5; }
+
+.radio-group, .check-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.radio-group label, .check-group label {
+  display: flex; align-items: center; gap: 7px;
+  cursor: pointer; font-size: 13px; font-weight: 500;
+  color: var(--gray-700, #374151);
+  background: var(--gray-50); border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm); padding: 8px 14px;
+  transition: all 0.18s; user-select: none;
+}
+.radio-group input[type=radio], .check-group input[type=checkbox] {
+  width: 15px; height: 15px; accent-color: var(--teal);
+  padding: 0; background: none; border: none; box-shadow: none; flex-shrink: 0;
+}
+.radio-group label:has(input:checked), .check-group label:has(input:checked) {
+  background: var(--teal-pale); border-color: var(--teal); color: var(--teal-dark); font-weight: 600;
+}
+
+.ferr { font-size: 11px; color: var(--error); font-weight: 500; display: none; margin-top: 2px; }
+.ferr.show { display: block; }
+
+.cond { display: none; }
+.cond.show { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
+
+/* Submit */
+.submit-wrap { text-align: center; padding-top: 8px; }
+.submit-note { font-size: 12px; color: var(--gray-400); margin-bottom: 22px; line-height: 1.7; }
+.btn-submit {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--teal); color: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 700;
+  padding: 15px 44px; border-radius: var(--radius-sm);
+  border: none; cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 18px rgba(13,143,126,0.35);
+}
+.btn-submit:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(13,143,126,0.45); }
+.btn-submit svg { width: 18px; height: 18px; fill: white; }
+
+/* Success */
+#success-screen { display: none; text-align: center; padding: 60px 32px; }
+.suc-icon {
+  width: 68px; height: 68px; background: #e6f6f2; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
+}
+.suc-icon svg { width: 32px; height: 32px; fill: var(--success); }
+#success-screen h3 { font-size: 24px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+#success-screen p { color: var(--gray-600); font-size: 14px; line-height: 1.7; }
+
+
+/* ── KVKK ── */
+.kvkk-box {
+  background: var(--gray-50);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+.kvkk-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  cursor: pointer;
+}
+.kvkk-label input[type=checkbox] {
+  width: 18px; height: 18px;
+  accent-color: var(--teal);
+  flex-shrink: 0;
+  margin-top: 3px;
+  padding: 0; background: none; border: none; box-shadow: none;
+  cursor: pointer;
+}
+.kvkk-text {
+  font-size: 12px;
+  color: var(--gray-600);
+  line-height: 1.7;
+}
+.kvkk-text strong { color: var(--navy); }
+.kvkk-text em { font-style: normal; color: var(--teal-dark); font-weight: 600; }
+.kvkk-box.err-box { border-color: var(--error); background: #fff5f5; }
+
+
+/* ── WHATSAPP SHARE BAR ── */
+.wa-share-bar {
+  background: #25d366;
+  color: white;
+  text-align: center;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.wa-share-bar p {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+.wa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  color: #128c3e;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 9px 20px;
+  border-radius: 24px;
+  text-decoration: none;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  white-space: nowrap;
+}
+.wa-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.wa-btn svg { width: 18px; height: 18px; fill: #25d366; flex-shrink: 0; }
+.tg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  color: #0088cc;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 9px 20px;
+  border-radius: 24px;
+  text-decoration: none;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  white-space: nowrap;
+}
+.tg-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+.tg-btn svg { width: 18px; height: 18px; fill: #0088cc; flex-shrink: 0; }
+
+
+@media (max-width: 600px) {
+  .header-hide-mobile { display: none !important; }
+  .header-logo img { height: 32px; }
+}
+
+/* Footer */
+.site-footer {
+  background: var(--navy); color: rgba(255,255,255,0.45);
+  text-align: center; padding: 20px 24px; font-size: 12px;
+}
+.site-footer strong { color: var(--teal-light); }
+</style>
+</head>
+<body>
+
+<div id="loading"><div class="spinner"></div><span>Başvurunuz gönderiliyor…</span></div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-logo">
+      <a href="https://teknikaplast.com.tr/" target="_blank" rel="noopener"><img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCABhAgcDASIAAhEBAxEB/8QAHQABAAICAwEBAAAAAAAAAAAAAAcIBAYDBQkCAf/EAFUQAAEDAwIEAgQJAw4KCwAAAAEAAgMEBREGBwgSITFBURNhcYEUFSIyN3WRsbNSYqEWIyUzNUJyc4KSorK00Rc0NkNjZHSEo8EYKDhFU1Rlg5OU0v/EABsBAQACAwEBAAAAAAAAAAAAAAADBAECBQYH/8QAMBEAAgICAAMGBAYDAQAAAAAAAAECAwQREiExBRMyM0FRImFxsQYUgZGhwVLR8OH/2gAMAwEAAhEDEQA/ALloiIAiIgCIiAItL1ZunoLTJfHctR0bqhnenpnemlHqLWZx38cKLNScTdCA+PTOnJ5ndmzV8gYM+fIwkkfyh7lLCmyfRFS/Px6PHNFh1+Oc1oy4gDzJVNr5vfuHeCQ27x22J/8Am6GER49jjlw+1afU3m7XNzzcrrXVrick1FQ+TP8AOJVmODJ9WcPI/E9Nflwb/j/ZeWp1LpymlMVRf7VDIO7ZKyNpHuJXLQXyy17+SgvFvqnfkw1LHn9BVEozjB8isyI/K+5SfkF/kcuf4xsi/KWvr/4XxRVK0NuVqjTErGxVr66iBAfSVTy9mPzSerD7OnmCrO6O1JbdVWKK7Wx5MbjySMd86J4Ayx3rGR7QQfFVbseVXN9D0HZPb2P2luMPhkvR/wBe53CIirnbCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiALjFRAao0oniNQGCQxc45w0kgOx3xkEZ9S5FULjstc0OudOX9rXBk1udStkAI5XxyOf38CRL+gqSqvvJcOyG+11Q49bLa19bRUEBnrqunpYR3kmkDGj3noo61Tvztbp8uil1NFX1Df8zb4nVBz5czRyD3uCoHMTNJ6SYmV/5TzzH7SvxXI4cfVnOl2jJ+GJaLVnFdUymSHSel2QtxhlTcZuY5/imdP6ah/Ve5uutWlzb3qStkgcc/B4Xehhx5FjMA+/K0OErLiPZWYUwh0RzMnJus5ORnRdCsqB3XGe64rTRV1yqmUluo6mtqX/Nhp4nSPd7GtBJUuaQ2B11do2Vd0bSafpMcznVr8yBv8Bvb2OLVJKyMPEzlflbb3quOyM4T8n2FZcLsPB81N9DovZDStRFDqDVj9Q1zpGxmGnk/Wg7OOvovm48eZ/grC2HTGnbDGGWayUFCB1zDA1rs+ZPclQWZih6Mmo7AnkNp2Ja665tf99Smtl0Xq27MElv03dJ4zjD/AIM5rT7CQAVslNtRuJIMjTM4x35p4m/e9W8c5rWlziGtAyST0AVbuIXeF1XT1Ok9H1JEDwY664xu/bB2McR8j2L/AB7Dp1UcMuyyWopE1/4Zw6YcVtkv00v6ZDnxrbYqmSlkr6cSseWOHpARzA4OD2PtBwpo4Zb1PBqya0sf6SkrqdzyGnIEjOod9nMPePJVcrqLucHOO2FNvBJpy4z7gXDUA9JHbLfRvhdgnlknkLcNx2OGhxPtb5qxkSTqeyj2b2Kqc2u2mb5P19vX+C4aIsG83m0WWBk94utDbYpHcjH1dQyJrnYzgFxGTgHouL1PoLejORdXZtSaevU74LPfrXcpY2872UlZHK5rc4yQ0nAz4rtEa0YTT6BERDIREQBEXFVVNNSRemqqiKCPOOeR4aM+0oDlRYlJc7bWS+ipLhSVEmM8kUzXHHngFZaAIiIAiIgCIiAIi1O/blaCsN8FkvGrLTRXDID4JagAxkjI5z2ZkYPysdCFlJvoYclHqzbEX4x7ZGNexwcxwy1wOQR5hfqwZCLG+H0P/nab/wCVv96yQQRkdQgCIiAIiIAiIgCIiAIiIAiIgCLFnuNvgroaCeupYqucEwwPlaJJAM55Wk5PY9vJZSAIiIAiIgCIiAIiIAiIgCLFo7jb62eop6OvpamamdyTxxTNe6J2SMOAOWnIPQ+RWUgCIiALTd4NvrVuRpCSxXGR1NKyQTUlUxoc6CUAgOwe4IJBHTIPgcFbkiym4vaNZRUlplCNXbA7n6frXxQ2B96pgTyVNueJA8Z8WEh4Pux6yuiodpdzq2URQaFvgcexlp/RN/nPIA+1eiiK0syeuhRfZ1e+TZSjTPDDuNcCx91ltNljIy4SzmaRvq5YwRn+Uph0Zwx6MtLoqi/11dfZ24LoyfQQE/wW/KPvdhTsi0lk2S9dEsMGmPNrf1OhptN2zT+nqyj0na6C0TOgf6F1PTtbiTlPK53T5RzjvlUm1Nq/VGoJHfH19uFX3BhlmIjafEBgw0e4K+6oPuhbjZ9xdQ24t5Gw3CbkB/ILi5n9EhT4TTk99TifiKElXBxelzWvQ6Fz24IHXKvxYNQUc+hLdqOuqWQU81DFUSyyHAHMwE/p8O6oCXAHBPVS5py93O9aEtFBNVONNbmPhihHRvR5IJ8zggewBWMmrvNHK7KzfyXG9b2v5Nv3b3KuOpWS2izmShtJOHk9JKkfnEdm/m+Pj5CGqyjySGtAPi1bjLGHdCMELvtC7b3PWNWJGtNJbWOxLVub9rWD98f0Dx8iXBVH2QVt+Zd7yZG2jtDXnWt+ZaLPBk5BnneP1unZnq5x+3A7k9ldDb3SVr0TpWl0/aWfrUI5pZS0B88p+dI71n9AAHYBZOk9NWbS1qbbbLRtp4QeZ7u75HeLnO7k/d2GAu3VC+92PS6HrMHCWPHcucgq58eAB0Lp0EZ/ZY/gvVjFXPjw/wAhdO/Wx/BetcfzET5fkyNB4FQBujesAD9hXfjxK5S82dvdb6j0FeZrtpmripqqeA08hkgbIHMLg7GHdurR1CvLw8apvGs9prXqG/SxTXColqGyPjjEbSGTvY35I6Do0KbLre+P0K3Z9seHu/UkFEVbt8OJJ1gvNVpvQ9JS1dVTOdFU3Goy6KOQHBZGwY5yD3cTjPTB7qtXXKx6iXbbY1LciyKKhMHELu9HViodqpkzQcmF9upvRkeXRgOPYc+tWF2C38pdfXJum79QxWu+uYXQOieTDV8oy4NB6scB15STkAkHwUs8acFsgqza7JcK5E4qDeNoA7NMBAI+NIO/scpyUG8bP0Nx/WkH3OWlHmRJMnyZfQg7guY1u98Ra0D9i6nsPWxXjVHuDD6b4vqyp+9im/iW3tk0A+n09pg00+oZeWaodMwvjpYeuMgEZe7HQZ6Dqe4zPkQc7dIq4lka6OKXuTkirPw/7l7v7k6sEU0lqhsNEQ+41TaAjp4RMPN8936B18gbMKtZW63plyq1Wx4l0CKsHEDxAar0xra6aP01RUNEaH0bHV0zfTSOLo2vy1hw1uOYDrzdvX0hio3y3Xmm9JJrita4nOGQwsH2NYApoYs5LZXsz64ScebPQZFTjbHid1RbLhDSa4bFera94bJVxxNiqYG56uwwBsgHlgH1kq4NBV01fQwV1HMyemqI2ywyMOQ9jhkEeogqOyqVb5k9N8LluJzLzb3A05qay64r7TqCjrJLtNWSYc6NzjWOc7POz8vmyD0z3wvSRU03H3/3Ms24F/tFvuVBHSUNwmgga6hY4hjXEDJPU9FNiOSb4StnqDiuJlmdkLXd7JtLpq1X1kkdwpqFrJY5HZdH3LWH1taWtx4YwtyWvbZ3asv23Omr5cXMdWXC1U1VUFjeVpkfE1zsDwGSei2FVp74nsuwSUUkeV7IozCD6NmcZzyr1Esn7i0P+zx/1QvL5n7QP4K9IdUautGh9uW6jvUvLT09JHyRg/LnkLPkxs83OP8AzJ6Aq9mpvhSOV2dJLib+X9m2IqS0vELvFf8AULKCwuonVFbOWUlDDQseRk9GBzupwO7j5EnCuFounv8AS6YoYdU3CC4XkM5queCERRlxJPK1o8GghufHGemcKpZTKvqdCnIjc3wo7hFq26GurJt5pWS/3x8hj5xDTwxNy+eUglrG+Azyk5PQAFVL1dxO7i3OqLrNJb9O02fkRxQsqJMfnPlaQfc0LNdE7OaMXZVdPKXUu6ipdonih1za6qJmpoKPUFHzASuETaeoAz1LSwBhI8i0Z8x3VvNJagtWqtOUV/slSKigrIxJE/GCPAtcPBwOQR4ELFlMq+pmnIhd4TtURRVxDbn3XbijskVls1Pcq+8Tvgh9PKWtY5objoPnEl4HcLSMXN6RJOarjxS6Eqoq6Oo+K+8yGb4z0/p9p/zA9AQPfySn+ksG4604hNsIxddb2y36nsTCBPPT+jaYwTj50bWlvtcwjqOql7hvkpL9yF5KXNxaX0LMouk0Nqi06y0tRajskxlo6thLeYYcxwJDmOHg4EEH2eS7tQtNPTLCaa2iu27IH/TC26OBn4J/zqFYlV23Z/7YO3X+yD76hWJUtvSP0IKPFP6/0giKHdzNztaQazl0Jt3oiquV5jibLNW1rTHTRMd2c3JAc3w5i4DIIAJziOEHJ6RLOxQW2TEirrJRcWFMfjEXjTtYBl3xc1sAz+bkxt/E962LZXemq1NqafQ+trIbDqmAOwzDhHOWjLhyu6sdjqBkgjqD4Ld0tLaaf0I45EW0mmt+5NCIuo1nqO16S0vX6jvMxioaGL0khAy5xJAa0Dxc5xAA8yFGlt6RM2kts7dFW23an4h9zIBedH01r0lYZiTSSVQY58rPPL2PLh+cGNB8CuY3fiX0PW0kt4t1v1zQTStjcyjYwSNLjgAuYxhZ/CLXNHiQpe4fTa2V/wAyuvC9e+v+ZYxF8xlzo2ue3kcQC5uc4PllfShLJXbhZAG8e8uB/wB9H+1VisSqY6Hfuszd7c3/AAWx0b5DfKj4x+EeiwB8KqPRY9IR/pO3v8FZ/aN2vHaRB3FZSsvfwh/Sn5OX0XTlzydM91ZyIc+Lft9ipi2bXDp+v06m3oiKsWwiIgCIiAIiIAqbcWVuFBu9PO1vKK+ihqe/c9Yz+GrkqtfG3a8M05fGgDDpaR5x3zh7Rn3P/SrOJLVq+Zy+2Ku8xX8tMrcSFJW084lslVT82XRT5Az2DmjH6QVFxd71MPClbqa968qrXWDmgFN8Kez8sRuDcfbIPdldK56g2eTqolZNQj1ZL+3W3IvRiu98jfHQg5ih6tdOO4J/M9nU+zvNFLTwUlNHTUsMcMMbQ1kcbQ1rR5ABfbGtY0MY0Na0YAAwAF+rjzsc3zPa4mHXiw4Y9fV+4REWhbCrnx4f5C6d+tj+C9WMVdOO8H9QunT/AOrH8F6mx/MRXy/JkQ1wuaF07r/XVxtWpaeeekp7Y6ojbFO6I8/pY2gkt69nHp61dXQ2lrNozTVPp2wQSQW+mc90bJJXSOBe8vd8p3U9XFVP4F3Abp3hpI5jZHkDzxPDn7wrlqTLk+PW+RDgRXd8WuZ1uq6qWi0vdq2BwZLT0U0rHHwc1hIP2heZ9qjiqrjRw1lQYoZ542zzucMsa5wDnknyBJyV6U67HNoi/N7ZttQP+E5eaNFEZ5YIGuY10rmsDnHDQSQMk+A6qXC6SIO0fFH9S5l007wzP0nNaYLnoRjmwOEdTFdqf4VzcvR3pOfncc9cEkepVM25rp7dr3Tdwhc5k0F0pX5Bwf21uR7xke9S2OFncMjIuNgI/wBok/8Awsuz8MO4VHeKGsdcLDy09TFKcTyZw14P5HqW8JVwTXFsjshbZJNV60XIUG8bP0Nx/WkH3OU5KDeNn6G4/rSD7nKlR5kTpZPky+hVzZrW7dvdWVGoxSuqqhttnp6WP976Z/LyF/X5oxk46+C4dG6c1PuruEaOGWSquNwmNRXVsoJbCwkc8r/UMgAeJwAtfs1nud5lqYrVRyVclLSyVczYyMthjAL34J64B7DJ9Skrhi3Mg291o+K6CMWS7BkNXNyDmp3A/Ilz35Rk8w8jnw69OfJOUepxK3xOMZv4S6O3ukbRofSlHpyyxFlNTt+XI7HPNIfnSPPi4n+4dAFsC+Y3sljbJG9r2PAc1zTkEHsQV9LkNtvbPQpJLSKA8Uf09ao/jYP7PErIcMGkNKXHY20VFw01Z6yas9P8Jkno45HTYmeBzFwJOAAPYAq28UBJ381WD4TwAf8A1ola3hQ+gXTv+8fjyK/e2qY6+X2OVixTyZ7+f3Kfb7WC3aX3e1HYbRD6CgpahhgiBJEbXwxycoJ64BeQPUrk8L1TLU7EaYdM7mMdO+Jp/NbI5rR7gAPcqmcUn0/6r/jab+yQq1vCp9A2m/4E34z1jI50xb+X2M4i1kSS+f3JRXnBvF9LOrPreo/rlej683N2SXbo6pLjk/G9T1/9xy1wvEzftLwxL57I/Q1or6govwGLcFp+yP0NaK+oKL8Bi3BVJ+JnQh4UeWcYzCB6lJW+W5dZuLfKKnoxUxWS3RMhoKVw+VJJygOlc0Z+W49AOuBgdyVGsX7U32Lvp6e/6F1hTuq6V1BeLXUQ1UbJQ14DmkSMd0Ja5p6HoSCuzJJvfqebhJqLXo9bLe8Luz7dE2hupdQ0zTqSuj+TG4Z+AxH94PJ5/fH+T4HM4rTdntf2zcbRlPfaHEVS39arqXOTTzADLfW05yD4g+eQNyXItlJyfF1PQ0xhGCUOh1GsqCwXLS9wpNUx0j7M6BxqzVODY2MAyXFx+bjvzZGMZyq82vc/h30FA+06f03U3VrfkS1cNuZM6fw6yTOaXD9HXovrjr1LX01usGlKaV8VLXGWrqg1xHpBHytYw+bcvLsebWnwCjLh42XZudBcbncbxLbrbRSiANp2B0sshaHHq7o1oBHgc58MKzVXFV8U3yKd90ndwVpbNX3ruOgrzquO77f0lRQUVXBzVdFLTiFsEwOPkNBLQHDBw0kZz5qxXApWzzbeXyikkc6KmuxdECejA+JhIHkMgn2kqCuIjbOg2x1JbbbbrnVV8NbSGcuqGtDmEP5cfJABCmrgNJ/UjqYeHxjGf+EFLdp0bRBjKSydSWmWRVdeMr929tvrh39eBWKVdeMr929tvrh39eBU8fzEX8vyn+n3LFLDvdNBW2atpKqJssE1O+ORjhkOaWkEFZi4a/8AxGf+Kd9yhRZZX/gSqJZNtbzTvcTHDdj6ME9Gh0MZOPfk+9WGVdOA36Pr/wDWw/AjVi1NkeaytieTErtuyf8Arhbdj/Ux99QrEquW67ieMrb5vgKFh+11T/crGpb0j9BR4p/X+kFrGu9faP0PTsm1PfKWgdI3mihJLppQPFsbcuI9eMLZKiUQ08kzhkRsLiPYMqqvD3pe3bwa11PuJriMXZsVYIqSjmJMTAQXNBb4tawsa1p6dyclYrgmnKXRG1tkotRj1ZvreKPa41racuvbYycGc0PyB7g7m/oqN9ztYaW1VxE7aah0dc4qtz6ykp6qSNjmPGaprQ14IBB5XuHXwVmHaH0W6l+CnSGnzT/+F8Ww8v2cuFXbezR2mtK7+7XHTdmprYK67QPqGU45WOLKqHB5ew6OPbCmpdbl8KfqV8iNqh8TTW19y1KiziqsFz1FspeKS0xST1MD4qowxgl0jI3guAA7kDLsePKpTRVoS4ZJl2cFOLi/UijZjd7QOodJ2i3xXmgtNygpY6d9uqpWwua9jQ0iPmID29OnLnp3A6hSrFJHNGJIpGSMPZzTkH3qO9cbJbbavqpKy5aejp6yQlz6iieYHvJ7lwb8lx9ZBUX6x2u1Js5a6nW22Oq7i+jtzDNW2i4P9JFJCPnHAw08oySMA4Bw7PQy8Nc38L0/mV+O2tfEtpe3+iyyLodvNTUustE2rU9HGY4rhTiQxk5MbgS17c+OHBw9y75QtaemWU01tFd+Fr6Y95fro/2qsViFXfha6bybyA9/jo/2qsViFLf4/wBvsQ43l/v9wiIoScIiIAiIgCIiAKLuKSxG97O3N7Gc8tseyvZ6gzIef5jnqUVwXGkp7hb6mgq4xJT1MToZWEdHMcCCPsJW0JcMkyO6tWQcH6nmoXnyUl8L95+Kt6bNzycsdYJaN/XAPOwlo/nNatG11YKrSer7pp2sa5stDUuiBP79mcsf7HNLXe9ddZrnPaLzRXWkz6eiqI6iL+ExwcP0hdmSU4Ne55GmLptTfoz0xRYVgulLe7HQ3ihkElLXU7KiFwOcte0OH3rNXEPZJ7CIiAKMOJrQ9Zrra6porVF6a6UMraykiz1lc3Icwestc7HrwpPRbRk4tNGs4KcXF+p5n6W1DqHRWpG3Sy1c9rutLzRu5oxzNB6OY9jxjHmCPDzCuzwv66v+4Ggqy8ailppaqG4vp2OghEY5AxhGQD3y4rfL3o/SV8qBUXvS1juczeokrLfFM4e9zSV2Vtt9BbKRtHbaKmoqZnzYaeJsbG+xrQAp7r42LpzKmPizpl4uRzVEMdRTyQTNDo5GFj2nxBGCF557zbZXrbjUdRSVVLNLZpJHGgrwwmOSPPyWud2a8DoQfaMheh64qqnp6unfT1UEU8Lxh8cjA5rh6wehWlNzqZLkY6vXs0eelHvFudQ2Jlmpta3CKgZGI2N5Yi9rQMACUt9IOn5ym7gxj3LM8z6maoZosB7uWuY4mWZ2TmAnqBkkuPVp6/viSJ6pdutv6Wt+HU2h9NQ1QdziZlrhDw7zB5cg+xbO1rWtDWgNaBgADoApbMiMotRj1IacScZKUpb0fqg3jaIGzTCen7KQfc5Tksa52633Ol+C3Khpa2nLg70VRE2RmR2OHAjKr1y4JKRathxwcfcpLwYFrt7ohlrh8V1OR38WLm4p9pv1DX79UdjpyNOXKU5Y0dKOc5Jj9THdS3y6t8s3KtendP2upNTbLFa6GctLTLT0kcbuU9xloBx0CzK+jo7hSPpK+lgq6eT58U0Yex3XPUHoVO8l95xJFVYS7rgb5+5WPg/3dZIyDbjUVU3nYMWaokePlNA/xc+sYy3zHyfAZtGulg0jpOnnZPBpiyRSxuDmPZQRNc1w6gghvQrulDbKM5bitFiiEq4cMns8/eKBzRv7qwFwH6/B3P8Aq0Ktfwn/AEC6d/3j8eRb7X6Y01cKt9XX6etFXUyY55Z6KN73YGBlxGT0AXYUVLS0VLHS0VNDTU8YwyKFgYxo8gB0CksvU61DXQiqxnXa7N9SgvFK9g4gNWAuaD6Wm7n/AFSFWv4UyDsNpvH5E34z1INXY7LWVDqmrs9vqJn45pJaZjnOwMDJIyegAWXS09PSU7KelgighZ0bHGwNa3x6AdAll/HBR10FWN3drs31OVebO68jP8KGqflt/deq8f8ASuXpMutn0/YZ5nzTWS2yyPPM576Vhc4+ZJHVYou7pt6M5OP36S3rR0OyP0NaK+oKH8Bi3BfMUbIomxRMayNjQ1rWjAaB2AHgF9KFvb2WYrS0eWDHs9CBzt7eau/xCbUN19oGhvNngH6pLZRMMHKOtXEG5MB9eerT4Hp2cVLh03p0u5jYbUSTnPwOP+5doAAAAMAdgrNmU5NOK1opU4ShGUZPezzs2c3EuO2Otm3WJsj6V59Bc6EnlMsYJ6YPZ7SSRnxyD0JXoJp68W3UFkpL1Z6uOroKyISwTRnIc0/cQcgjuCCCvifT9hnmfNPZLbLK88z3vpWFzj5kkdVmUVJS0VO2no6aGmhaSWxxMDGjJyeg6d1pdbGznrTJcaiVKab2iGeLPbS5a60rRXWwwmpu1mdI5tOPnTwvA52t835a0geOCO5Cq3tluRq/a671bLSQxsrgK23VsR5XOb0BLejmOHbIx689F6ILo9RaP0nqN4kv+mbPdZG/NfV0Ucrh7C4EhbVZCjHgkto0uxXOfeQemUD3Z3Ivm5F4pLnfoaGnkpYTBCylY5reUu5uvMSScqyHAxb6+j0ZqCasoaqmjqK9joHzQuYJQIxktyPlD1hTLZ9B6Hs8wntOjtP0Mw7SQW6Jj/5wblbGAAAAMAdgs25ClDgitI1pxJQs7yUtsKtnG9VfAZtBVwjMvwa4TTejBwX8voXY9+MKyarjxpfult39aSffCtMfzES5nkv9PubHZ+JrbSqHJdZLtZaho/XIqmge8tPl+thx/QF0e4PEXZrtQTaa21t9zv18uDDT08gpHMYwuGC4NcA9xAPblA8ScKbr5pPS19cHXzTVmuhByDWUMUxB/lNK5LDprTtgDhYrBarUHDDhRUccOfbyALClUuev5Dhc1riX7czSeG3b+q2823itlz5BdKud1XWNY7mbG4gNazPjhrWgnzypLRFHKTk22TwgoRUV6EBcU+nr/Q33TO6mmaF1dU6ekxVwsaS4xB3M12Bkloy9pwDgPz2Bxvm0G7emNzW1Mdljraeso4mSVUFRHjk5iQMOBId1BUgrBt9ms9urKist9qoKSpqcfCJoKdjHy4zjmcBl2Mnv5rdzThwtc0Rqpxscovk+qM2RjZI3RvGWuBBHmCqqaLvFVw7bj3yw6poKs6PvFR6eiuMMJeyPBdynoOp5SGuaOo5QQCD1tYuCvo6OvpX0tdSwVVO8YfFNGHscPWD0KxCfDtNcmLanNqSemjRWb17VOgbMNcWkNcMgF5Dve3GR9ihrcLWWndx9/dtJNG1U93htdePhkkdJK1sWZY3A5c0dMMJyOgU5N2m2xbUGcaA02XE5wbdEW/zSMD7FtVsttutdM2mtlvpKGBow2KnhbG0D1BoAW8Zwg9xTNJV2WLUmtGUtL3nt2tbloSpj0Ddzbr1E9srMNbmdrTkxhzgQ0nwPjjBwCSt0RQxensnlHiTRXjR3EpRW9rrJujZrhYr5S/ImkjpnOZKR05jH85hPkAR4g+Cxty976HX2n63Qe2Nnul8u15gdSvlNMY44YnjD3fK69iRkgAd89FP95sVjvTAy82a3XJg7Nq6VkoH84FLLYrJZI3x2WzW62MecvbSUzIQ72hoGVN3lafEo8/4K7qua4XLl9OZ0+0ulP1Ebc2XS5lEslFARM9vZ0r3F8hHq53Ox6ltKIoW23tlmMVFJIrDrH472O3xumvYbPUXHR+oSXVzqcZMMjzzOzno1wflwzgODyMg9pt2w3K0nuPS1k+mKueY0RYKmOaB0boy8Et79Dnld2J7Lb5Y45Y3Rysa9jhgtcMg+5Y1ttdttjZG223UlEJXc0gp4Wx87vM8oGSpJWKa5rmQwqlXJ6fL2MtERRE4REQBERAEREAREQEI8TOzk2u6eLUOm2RN1DSx+jfC4hgrIh2bzHoHtycE9DnBI6EU41BarrYLi+33y3VVtq2d4amIsd7RnuPWOi9NVj11DRV8YirqOnqmA5DZog8D3EK1TlSrWmtooZGBC6XEnplauDzdagNvZt3fK1kVVHI42iR5AbKxxyYc/lBxcR5g48OtnVhW+0Wm3PL7fa6KkcRgugp2sOPLoFmqG2anLaWi1RXKuCjJ70ERFGShERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBaBu9tjRbjVFgmrLrU0HxNUuqGCGNrvSElhwc9vmfpW/osxk4vaNZRU1qQREWDYIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiA//2Q==" alt="Teknika Plast" /></a>
+    </div>
+    <div class="header-sep header-hide-mobile"></div>
+    <div class="header-info header-hide-mobile">
+      <span class="pos">Erkek Üretim Elemanı – İş Başvurusu</span>
+      <span class="loc">75. Yıl OSB · Odunpazarı, Eskişehir</span>
+    </div>
+    <div class="header-right header-hide-mobile"><span class="badge-open">● Aktif İlan</span></div>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <!-- Product-inspired geometric background -->
+  <div class="hero-bg">
+    <svg viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="900" cy="200" r="220" fill="none" stroke="white" stroke-width="1"/>
+      <circle cx="900" cy="200" r="160" fill="none" stroke="white" stroke-width="1"/>
+      <circle cx="900" cy="200" r="100" fill="none" stroke="white" stroke-width="1"/>
+      <rect x="700" y="60" width="80" height="80" rx="8" fill="none" stroke="white" stroke-width="1"/>
+      <rect x="810" y="80" width="60" height="60" rx="6" fill="none" stroke="white" stroke-width="1"/>
+      <rect x="750" y="180" width="100" height="100" rx="10" fill="none" stroke="white" stroke-width="1"/>
+      <line x1="0" y1="200" x2="1200" y2="200" stroke="white" stroke-width="0.5" stroke-dasharray="4 8"/>
+      <circle cx="200" cy="100" r="80" fill="none" stroke="white" stroke-width="0.5"/>
+      <circle cx="200" cy="100" r="50" fill="none" stroke="white" stroke-width="0.5"/>
+    </svg>
+  </div>
+
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-tag"><span class="dot"></span>Açık Pozisyon</div>
+      <h1>Erkek Üretim<br>Elemanı<br><span>Enjeksiyon / Gruplama</span></h1>
+      <p class="hero-desc">30 yılı aşkın deneyimiyle Avrupa, Orta Doğu ve Afrika'nın lider ambalaj üreticilerinden Teknika Plast, Eskişehir 75. Yıl OSB'deki fabrikasında üretim ekibini güçlendiriyor. Deneyimsiz erkek adaylar kabul edilir — işbaşı eğitimi verilir.</p>
+      <a href="#basvuru-formu" class="hero-cta" onclick="event.preventDefault();document.getElementById('basvuru-formu').scrollIntoView({behavior:'smooth'});">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+        Hemen Başvur
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-val">28.575</div>
+        <div class="stat-lbl">TL Net Maaş</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-val">+2.500</div>
+        <div class="stat-lbl">TL Devamsızlık Primi</div>
+      </div>
+      <div class="stat-card" style="border:1.5px solid rgba(20,179,160,0.4);background:rgba(13,143,126,0.12)">
+        <div class="stat-icon">🤑</div>
+        <div class="stat-val" style="color:#7eeee6">31.075</div>
+        <div class="stat-lbl">TL Toplam Ele Geçen</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🚀</div>
+        <div class="stat-val">40-45K</div>
+        <div class="stat-lbl">TL Mesaili Toplam</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🍽️</div>
+        <div class="stat-val">Ücretsiz</div>
+        <div class="stat-lbl">Servis + Yemek</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+
+  <!-- JOB STRIP -->
+  <div class="job-strip">
+    <div class="job-item"><span class="ji-icon">🏭</span><span>Bölüm: <strong>Enjeksiyon / Gruplama Hattı</strong></span></div>
+    <div class="job-item"><span class="ji-icon">🌅</span><span>Gündüz Vardiyası: <strong>06:30 → 18:30</strong></span></div>
+    <div class="job-item"><span class="ji-icon">🌙</span><span>Gece Vardiyası: <strong>18:30 → 06:30</strong></span></div>
+    <div class="job-item"><span class="ji-icon">💵</span><span>Fazla mesai: <strong>x1,5 ücretle ödenir</strong></span></div>
+    <div class="job-item"><span class="ji-icon">📅</span><span>Cumartesi: <strong>Yoğunluğa göre ara ara</strong></span></div>
+    <div class="job-item"><span class="ji-icon">🎓</span><span>Deneyim: <strong>Gerekmez, eğitim verilir</strong></span></div>
+    <div class="job-item"><span class="ji-icon">🎁</span><span>İkramiye: <strong>Yılda 2x Bayram + Yılbaşı</strong></span></div>
+    <div class="job-item"><span class="ji-icon">🏥</span><span>Sigorta: <strong>Tamamlayıcı sağlık (1 yıl sonra)</strong></span></div>
+  </div>
+
+  <!-- MESAI NOTU -->
+  <div style="background:var(--teal-pale);border:1.5px solid rgba(13,143,126,0.2);border-radius:var(--radius);padding:14px 20px;margin-bottom:36px;display:flex;align-items:flex-start;gap:12px">
+    <span style="font-size:20px;flex-shrink:0">💡</span>
+    <div>
+      <strong style="color:var(--navy);font-size:13px">Fazla Mesai İmkânı:</strong>
+      <span style="font-size:13px;color:var(--gray-600)"> Fazla mesai <strong style="color:var(--teal-dark)">x1,5 ücretle</strong> ödenir. Fazla mesai ücretleriyle birlikte aylık toplam kazanç <strong>40.000 – 45.000 TL</strong>'ye kadar çıkabilmektedir.</span>
+    </div>
+  </div>
+
+  <!-- SERVIS SECTION -->
+  <div class="sec-head">
+    <div class="sec-head-line"></div>
+    <h2>🚌 Servis Güzergahları — Eskişehir</h2>
+  </div>
+
+  <div class="map-table-grid">
+    <div class="card">
+      <div class="card-head"><span class="ch-dot"></span>İnteraktif Harita</div>
+      <div id="map"></div>
+      <div class="map-note" id="map-legend" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+  <span>🔴 Fabrika (75. Yıl OSB)</span>
+  <span style="display:inline-flex;align-items:center;gap:4px"><span style="display:inline-block;width:12px;height:12px;background:#2980b9;border-radius:50%"></span> Tepebaşı / Odunpazarı Durağı</span>
+  <span style="display:inline-flex;align-items:center;gap:4px"><span style="display:inline-block;width:12px;height:12px;background:#e67e22;border-radius:50%"></span> Çifteler (Uzak İlçe)</span>
+  <span style="display:inline-flex;align-items:center;gap:4px"><span style="display:inline-block;width:12px;height:12px;background:#bdc3c7;border:2px dashed #7f8c8d;border-radius:50%"></span> Potansiyel bölge</span>
+</div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="ch-dot"></span>Servis Bölgeleri ve Duraklar</div>
+      <div class="route-table-wrap">
+        <table class="route-table">
+          <thead><tr><th>Hat</th><th>Saat</th><th>Duraklar</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="route-badge">Tepebaşı</span></td>
+              <td style="white-space:nowrap;font-weight:600;color:var(--navy);font-size:12px">06:30<br>18:30</td>
+              <td><div class="stop-list"><span class="chip">Esentepe</span><span class="chip">Şirintepe</span><span class="chip">Çamlıca</span><span class="chip">Akarbaşı</span><span class="chip">Ertuğrulgazi</span><span class="chip">Sazova</span><span class="chip">Anadolu Üniversitesi</span><span class="chip">ESPARK</span><span class="chip">Opera</span><span class="chip">Gaffar Okkan</span><span class="chip">Bursa Caddesi</span><span class="chip">Birlik Caddesi</span><span class="chip">Ümit Hastanesi</span><span class="chip">Radar</span><span class="chip">Alafırın</span><span class="chip">Turgut Reis M. Lisesi</span><span class="chip">Kanal 26</span></div></td>
+            </tr>
+            <tr>
+              <td><span class="route-badge">Odunpazarı</span></td>
+              <td style="white-space:nowrap;font-weight:600;color:var(--navy);font-size:12px">06:30<br>18:30</td>
+              <td><div class="stop-list"><span class="chip">Emek</span><span class="chip">Yenikent</span><span class="chip">Ihlamurkent</span><span class="chip">Vadışehir</span><span class="chip">Orhangazi</span><span class="chip">Göztepe</span><span class="chip">Atatürk Lisesi</span><span class="chip">Salih Seki Lisesi</span><span class="chip">TOKİ</span><span class="chip">Erenköy</span><span class="chip">Ertaş</span><span class="chip">Efeler Parkı</span><span class="chip">Hyundai</span><span class="chip">Sanayi Işıklar</span><span class="chip">İlahi Camii</span><span class="chip">TOKİ 3-4 Etap</span><span class="chip">Karacan Petrol</span><span class="chip">Şantiye</span><span class="chip hi">Adliye</span></div></td>
+            </tr>
+            <tr>
+              <td><span class="route-badge">Çifteler</span></td>
+              <td style="white-space:nowrap;font-weight:600;color:var(--navy);font-size:12px">06:30<br>18:30</td>
+              <td><div class="stop-list"><span class="chip hi">Çifteler İlçe Merkezi</span></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- COVERAGE -->
+  <div class="coverage-card">
+    <div class="card-head"><span class="ch-dot"></span>Servis Kapsama Alanı</div>
+    <div class="cov-inner">
+      <p style="font-size:13px;color:var(--gray-600)">Aşağıdaki ilçelerden başvurabilirsiniz. Yoğun talep halinde yeni güzergah açılabilir; servisi olmayan ilçelerden de başvurularınızı bekliyoruz.</p>
+      <div class="cov-grid">
+        <div class="cov-item act">✅ Tepebaşı</div>
+        <div class="cov-item act">✅ Odunpazarı</div>
+        <div class="cov-item act">✅ Çifteler</div>
+        <div class="cov-item pot">⏳ İnönü (talep halinde)</div>
+        <div class="cov-item pot">⏳ Seyitgazi (değerlendirmede)</div>
+        <div class="cov-item pot">⏳ Sivrihisar (talep halinde)</div>
+      </div>
+      <div class="cov-note">⚠️ <span>Listelenmemiş ilçelerden de başvurun. Toplu talep halinde servis planlaması yapılacaktır.</span></div>
+    </div>
+  </div>
+
+  <!-- APPLICATION FORM -->
+  <div class="sec-head" id="basvuru-formu">
+    <div class="sec-head-line"></div>
+    <h2>📋 İş Başvuru Formu</h2>
+  </div>
+
+  <div class="form-card">
+    <div class="form-head">
+      <h2>Başvuru Formu</h2>
+      <p>Başvurular <strong>yalnızca bu form</strong> aracılığıyla kabul edilmektedir. Kişisel verileriniz KVKK kapsamında korunur ve yalnızca işe alım sürecinde kullanılır.</p>
+    </div>
+    <div class="form-body">
+      <form id="appForm" novalidate>
+
+        <!-- SEK 1 -->
+        <div class="form-sec">
+          <div class="form-sec-title"><span class="sn">1</span>Kişisel Bilgiler</div>
+          <div class="fg">
+            <div class="field">
+              <label class="lbl">Ad <span class="req">*</span></label>
+              <input type="text" id="firstName" placeholder="Adınız">
+              <span class="ferr" id="e-firstName">Bu alan zorunludur.</span>
+            </div>
+            <div class="field">
+              <label class="lbl">Soyad <span class="req">*</span></label>
+              <input type="text" id="lastName" placeholder="Soyadınız">
+              <span class="ferr" id="e-lastName">Bu alan zorunludur.</span>
+            </div>
+            <div class="field">
+              <label class="lbl" style="display:block;margin-bottom:8px">Cinsiyet <span class="req">*</span></label>
+              <div class="radio-group">
+                <label><input type="radio" name="cinsiyet" value="Kadın"> Kadın</label>
+                <label><input type="radio" name="cinsiyet" value="Erkek"> Erkek</label>
+              </div>
+              <span class="ferr" id="e-cinsiyet">Lütfen seçiniz.</span>
+            </div>
+            <div class="field">
+              <label class="lbl" style="display:block;margin-bottom:8px">Medeni Durum <span class="req">*</span></label>
+              <div class="radio-group">
+                <label><input type="radio" name="marital" value="Bekar"> Bekar</label>
+                <label><input type="radio" name="marital" value="Evli"> Evli</label>
+                
+              </div>
+              <span class="ferr" id="e-marital">Lütfen seçiniz.</span>
+            </div>
+            <div class="field">
+              <label class="lbl">Doğum Tarihi <span class="req">*</span></label>
+              <input type="date" id="birthDate" max="">
+              <span class="ferr" id="e-birthDate">18 yaşından büyük olmanız gerekmektedir.</span>
+            </div>
+            <div class="field">
+              <label class="lbl">Telefon <span class="req">*</span></label>
+              <input type="tel" id="phone" placeholder="05XX XXX XX XX" maxlength="11">
+              <span class="ferr" id="e-phone">Geçerli telefon giriniz.</span>
+            </div>
+            <div class="field">
+              <label class="lbl">İkamet İlçesi <span class="req">*</span></label>
+              <select id="district">
+                <option value="">— Seçiniz —</option>
+                <option>Tepebaşı</option><option>Odunpazarı</option>
+                <option>Çifteler</option><option>Alpu</option>
+                <option>Beylikova</option><option>Günyüzü</option>
+                <option>Han</option><option>İnönü</option>
+                <option>Mahmudiye</option><option>Mihalgazi</option>
+                <option>Mihallıçcık</option><option>Sarıcakaya</option>
+                <option>Seyitgazi</option><option>Sivrihisar</option>
+                <option>Diğer</option>
+              </select>
+              <span class="ferr" id="e-district">Lütfen seçiniz.</span>
+            </div>
+            <div class="field">
+              <label class="lbl">İkamet Mahallesi / Semti <span class="req">*</span> <span class="hint">(servis uygunluğu için)</span></label>
+              <input type="text" id="neighborhood" placeholder="Örn: Nurlupınar Mahallesi">
+              <span class="ferr" id="e-neighborhood">Mahallenizi giriniz.</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- SEK 2 -->
+        <div class="form-sec">
+          <div class="form-sec-title"><span class="sn">2</span>Eğitim &amp; Deneyim</div>
+          <div class="fg">
+            <div class="field">
+              <label class="lbl">Mezuniyet Durumu <span class="req">*</span></label>
+              <select id="education">
+                <option value="">— Seçiniz —</option>
+                <option>İlkokul</option><option>Ortaokul</option>
+                <option>Lise</option><option>Ön Lisans</option><option>Lisans</option>
+              </select>
+              <span class="ferr" id="e-education">Lütfen seçiniz.</span>
+            </div>
+            <div class="field">
+              <label class="lbl">Okul Adı <span class="req">*</span></label>
+              <input type="text" id="schoolName" placeholder="Mezun olduğunuz okul">
+              <span class="ferr" id="e-schoolName">Bu alan zorunludur.</span>
+            </div>
+          </div>
+          <div style="margin-top:18px">
+            <label class="lbl" style="display:block;margin-bottom:8px">Daha önce üretim / fabrika ortamında çalıştınız mı? <span class="req">*</span></label>
+            <div class="radio-group">
+              <label><input type="radio" name="hasExp" value="Evet" id="expY"> Evet, çalıştım</label>
+              <label><input type="radio" name="hasExp" value="Hayır"> Hayır, çalışmadım</label>
+            </div>
+            <span class="ferr" id="e-hasExp">Lütfen seçiniz.</span>
+          </div>
+          <div id="expDetail" class="cond">
+            <label class="lbl">Deneyim Detayı <span class="hint">(opsiyonel)</span></label>
+            <textarea id="expText" placeholder="Örn: ABC Plastik – Montaj Operatörü – 2 yıl&#10;XYZ Gıda – Paketleme – 8 ay"></textarea>
+          </div>
+        </div>
+
+        <!-- SEK 3 -->
+        <div class="form-sec">
+          <div class="form-sec-title"><span class="sn">3</span>Çalışma Koşulları</div>
+          <div class="fg one">
+            <div class="field">
+              <label class="lbl" style="display:block;margin-bottom:8px">Vardiyalı çalışabilir misiniz? <span class="req">*</span></label>
+              <div class="radio-group">
+                <label><input type="radio" name="shiftOk" value="Evet"> Evet</label>
+                <label><input type="radio" name="shiftOk" value="Hayır"> Hayır</label>
+              </div>
+              <span class="ferr" id="e-shiftOk">Lütfen seçiniz.</span>
+            </div>
+            <div class="field">
+              <label class="lbl" style="display:block;margin-bottom:8px">Cumartesi günleri çalışmayı kabul ediyor musunuz? <span class="req">*</span> <span class="hint">(zorunlu çalışma günü)</span></label>
+              <div class="radio-group">
+                <label><input type="radio" name="satOk" value="Evet"> Evet, kabul ediyorum</label>
+                <label><input type="radio" name="satOk" value="Hayır"> Hayır, uygun değilim</label>
+              </div>
+              <span class="ferr" id="e-satOk">Lütfen seçiniz.</span>
+            </div>
+            <div class="field">
+              <label class="lbl" style="display:block;margin-bottom:8px">Gerektiğinde Pazar günleri fazla mesaiye kalabilir misiniz? <span class="req">*</span> <span class="hint">(yoğun dönemlerde talep edilebilir)</span></label>
+              <div class="radio-group">
+                <label><input type="radio" name="sunOk" value="Evet"> Evet, kalabilirim</label>
+                <label><input type="radio" name="sunOk" value="Hayır"> Hayır, uygun değilim</label>
+              </div>
+              <span class="ferr" id="e-sunOk">Lütfen seçiniz.</span>
+            </div>
+          </div>
+          <div style="margin-top:18px">
+            <label class="lbl" style="display:block;margin-bottom:8px">Fiziksel iş yapmanıza engel sağlık durumunuz var mı? <span class="req">*</span></label>
+            <div class="radio-group">
+              <label><input type="radio" name="healthOk" value="Hayır"> Hayır, engel durum yok</label>
+              <label><input type="radio" name="healthOk" value="Evet" id="hlthY"> Evet, var</label>
+            </div>
+            <span class="ferr" id="e-healthOk">Lütfen seçiniz.</span>
+          </div>
+          <div id="hlthDetail" class="cond">
+            <label class="lbl">Açıklama <span class="hint">(opsiyonel)</span></label>
+            <textarea id="hlthText" placeholder="Kısaca belirtiniz..."></textarea>
+          </div>
+        </div>
+
+        <!-- SEK 4 -->
+        <div class="form-sec">
+          <div class="form-sec-title"><span class="sn">4</span>Ek Bilgiler</div>
+          <div class="fg">
+            <div class="field">
+              <label class="lbl">Bu ilanı nereden öğrendiniz? <span class="req">*</span></label>
+              <select id="source">
+                <option value="">— Seçiniz —</option>
+                <option>Sosyal Medya</option>
+                <option>Tanıdık / Arkadaş</option>
+                <option>İş İlanı Sitesi</option>
+                <option>Fabrika Önü / Çevre İlanı</option>
+                <option>Diğer</option>
+              </select>
+              <span class="ferr" id="e-source">Lütfen seçiniz.</span>
+            </div>
+            <div class="field span2">
+              <label class="lbl">Eklemek istediğiniz bilgi <span class="hint">(opsiyonel)</span></label>
+              <textarea id="extraInfo" placeholder="Varsa notunuzu buraya yazınız..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- KVKK + SUBMIT -->
+        <div class="submit-wrap">
+          <div class="kvkk-box">
+            <label class="kvkk-label" id="kvkk-label">
+              <input type="checkbox" id="kvkkCheck">
+              <span class="kvkk-text">
+                <strong>Kişisel Verilerin Korunması Kanunu (KVKK) Aydınlatma Metni:</strong>
+                İş başvurusu kapsamında tarafınızdan alınan kişisel verileriniz (ad, soyad, doğum tarihi, iletişim bilgileri, eğitim ve deneyim bilgileri), 6698 sayılı KVKK'nın 5. maddesi uyarınca <em>işe alım süreçlerinin yürütülmesi</em> amacıyla işlenmektedir. Verileriniz üçüncü kişilerle paylaşılmaz; değerlendirme sonucunda silinir veya imha edilir. Bu formu göndererek kişisel verilerinizin yukarıda belirtilen amaçla işlenmesine <strong>açık rıza</strong> vermiş olursunuz.
+              </span>
+            </label>
+            <span class="ferr" id="e-kvkk" style="margin-top:8px">Devam edebilmek için KVKK metnini onaylamanız gerekmektedir.</span>
+          </div>
+          <button type="submit" class="btn-submit">
+            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            Başvurumu Gönder
+          </button>
+        </div>
+
+        <div id="success-screen">
+          <div class="suc-icon"><svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div>
+          <h3>Başvurunuz Alındı!</h3>
+          <p>Bilgileriniz başarıyla iletildi.<br>Ekibimiz en kısa sürede sizinle iletişime geçecektir.</p>
+          <div style="margin-top:32px;padding-top:28px;border-top:1px solid var(--gray-200)">
+            <p style="font-size:13px;font-weight:600;color:var(--gray-600);margin-bottom:16px">📢 Bu ilanı tanıdıklarınla paylaş, birlikte çalışma fırsatını yakala!</p>
+            <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
+              <a class="wa-btn" style="width:260px;justify-content:center" href="https://wa.me/?text=Teknika%20Plast%20%E2%80%93%20Erkek%20%C3%9Cretim%20Eleman%C4%B1%20Ar%C4%B1yor%21%20%F0%9F%93%A2%0A%0AEski%C5%9Fehir%2075.%20Y%C4%B1l%20OSB%20fabrikas%C4%B1nda%20%2AERKEK%2A%20%C3%BCretim%20eleman%C4%B1%20al%C4%B1m%C4%B1%20yap%C4%B1lacakt%C4%B1r.%0A%0A%2A%20%E2%9C%85%20Deneyimsiz%20adaylar%20kabul%20edilir%0A%2A%20%F0%9F%92%B0%2031.075%20TL%20toplam%20%C3%BCcret%20%2B%20mesai%20ile%2040-45K%20TL%0A%2A%20%F0%9F%9A%8C%20Servis%20var%20%7C%20%F0%9F%8D%BD%EF%B8%8F%20Yemek%20var%0A%2A%20%F0%9F%8F%A5%201.%20y%C4%B1l%C4%B1n%C4%B1%20doldurana%20Tamamlay%C4%B1c%C4%B1%20Sa%C4%9Fl%C4%B1k%20Sigortas%C4%B1%0A%0A%F0%9F%91%89%20Hemen%20ba%C5%9Fvurmak%20i%C3%A7in%20T%C4%B1kla%20%E2%86%92%20https%3A%2F%2Fkumkyopenclaw.github.io%2Fteknikaplast-Eskisehir-basvuru%20%F0%9F%9A%80" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                WhatsApp'ta Paylaş
+              </a>
+              <a class="tg-btn" style="width:260px;justify-content:center" href="https://t.me/share/url?url=https%3A%2F%2Fkumkyopenclaw.github.io%2Fteknikaplast-Eskisehir-basvuru&text=Teknika%20Plast%20%E2%80%93%20Erkek%20%C3%9Cretim%20Eleman%C4%B1%20Ar%C4%B1yor%21%20%F0%9F%93%A2%0A%0AEski%C5%9Fehir%2075.%20Y%C4%B1l%20OSB%20fabrikas%C4%B1nda%20%2AERKEK%2A%20%C3%BCretim%20eleman%C4%B1%20al%C4%B1m%C4%B1%20yap%C4%B1lacakt%C4%B1r.%0A%0A%2A%20%E2%9C%85%20Deneyimsiz%20adaylar%20kabul%20edilir%0A%2A%20%F0%9F%92%B0%2031.075%20TL%20toplam%20%C3%BCcret%20%2B%20mesai%20ile%2040-45K%20TL%0A%2A%20%F0%9F%9A%8C%20Servis%20var%20%7C%20%F0%9F%8D%BD%EF%B8%8F%20Yemek%20var%0A%2A%20%F0%9F%8F%A5%201.%20y%C4%B1l%C4%B1n%C4%B1%20doldurana%20Tamamlay%C4%B1c%C4%B1%20Sa%C4%9Fl%C4%B1k%20Sigortas%C4%B1%0A%0A%F0%9F%91%89%20Hemen%20ba%C5%9Fvurmak%20i%C3%A7in%20T%C4%B1kla%20%E2%86%92%20https%3A%2F%2Fkumkyopenclaw.github.io%2Fteknikaplast-Eskisehir-basvuru%20%F0%9F%9A%80" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                Telegram'da Paylaş
+              </a>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- WHATSAPP SHARE BAR -->
+<div class="wa-share-bar">
+  <p>📢 Bu ilanı tanıdıklarınla paylaş, birlikte çalışma fırsatını yakala!</p>
+  <a class="wa-btn" href="https://wa.me/?text=Teknika%20Plast%20%E2%80%93%20Erkek%20%C3%9Cretim%20Eleman%C4%B1%20Ar%C4%B1yor%21%20%F0%9F%93%A2%0A%0AEski%C5%9Fehir%2075.%20Y%C4%B1l%20OSB%20fabrikas%C4%B1nda%20%2AERKEK%2A%20%C3%BCretim%20eleman%C4%B1%20al%C4%B1m%C4%B1%20yap%C4%B1lacakt%C4%B1r.%0A%0A%2A%20%E2%9C%85%20Deneyimsiz%20adaylar%20kabul%20edilir%0A%2A%20%F0%9F%92%B0%2031.075%20TL%20toplam%20%C3%BCcret%20%2B%20mesai%20ile%2040-45K%20TL%0A%2A%20%F0%9F%9A%8C%20Servis%20var%20%7C%20%F0%9F%8D%BD%EF%B8%8F%20Yemek%20var%0A%2A%20%F0%9F%8F%A5%201.%20y%C4%B1l%C4%B1n%C4%B1%20doldurana%20Tamamlay%C4%B1c%C4%B1%20Sa%C4%9Fl%C4%B1k%20Sigortas%C4%B1%0A%0A%F0%9F%91%89%20Hemen%20ba%C5%9Fvurmak%20i%C3%A7in%20T%C4%B1kla%20%E2%86%92%20https%3A%2F%2Fkumkyopenclaw.github.io%2Fteknikaplast-Eskisehir-basvuru%20%F0%9F%9A%80" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    WhatsApp'ta Paylaş
+  </a>
+  <a class="tg-btn" href="https://t.me/share/url?url=https%3A%2F%2Fkumkyopenclaw.github.io%2Fteknikaplast-Eskisehir-basvuru&text=Teknika%20Plast%20%E2%80%93%20Erkek%20%C3%9Cretim%20Eleman%C4%B1%20Ar%C4%B1yor%21%20%F0%9F%93%A2%0A%0AEski%C5%9Fehir%2075.%20Y%C4%B1l%20OSB%20fabrikas%C4%B1nda%20%2AERKEK%2A%20%C3%BCretim%20eleman%C4%B1%20al%C4%B1m%C4%B1%20yap%C4%B1lacakt%C4%B1r.%0A%0A%2A%20%E2%9C%85%20Deneyimsiz%20adaylar%20kabul%20edilir%0A%2A%20%F0%9F%92%B0%2031.075%20TL%20toplam%20%C3%BCcret%20%2B%20mesai%20ile%2040-45K%20TL%0A%2A%20%F0%9F%9A%8C%20Servis%20var%20%7C%20%F0%9F%8D%BD%EF%B8%8F%20Yemek%20var%0A%2A%20%F0%9F%8F%A5%201.%20y%C4%B1l%C4%B1n%C4%B1%20doldurana%20Tamamlay%C4%B1c%C4%B1%20Sa%C4%9Fl%C4%B1k%20Sigortas%C4%B1%0A%0A%F0%9F%91%89%20Hemen%20ba%C5%9Fvurmak%20i%C3%A7in%20T%C4%B1kla%20%E2%86%92%20https%3A%2F%2Fkumkyopenclaw.github.io%2Fteknikaplast-Eskisehir-basvuru%20%F0%9F%9A%80" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+    Telegram'da Paylaş
+  </a>
+</div>
+
+<footer class="site-footer">
+  &copy; 2025 <strong>Teknika Plast</strong> Teknik Kalıp Plastik San. ve Tic. A.Ş. · 75. Yıl OSB, 32. Cadde No:26, 26250 Odunpazarı / Eskişehir
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+// Doğum tarihi: 18–50 yaş arası
+(function() {
+  const today = new Date();
+  const maxDate = new Date(); maxDate.setFullYear(today.getFullYear() - 18);
+  const minDate = new Date(); minDate.setFullYear(today.getFullYear() - 50);
+  const bd = document.getElementById('birthDate');
+  if (bd) {
+    bd.max = maxDate.toISOString().split('T')[0];
+    bd.min = minDate.toISOString().split('T')[0];
+  }
+})();
+
+// Sayfa açılınca anchor'a atlamayı engelle
+if (window.location.hash === '#basvuru-formu') {
+  history.replaceState(null, '', window.location.pathname);
+  window.scrollTo(0, 0);
+}
+
+// MAP – Eskişehir
+if (typeof L === 'undefined') {
+  console.warn('Leaflet not loaded');
+} else {
+const map = L.map('map');
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap © CARTO',
+  subdomains: 'abcd', maxZoom: 19
+}).addTo(map);
+
+const FACTORY = [39.7479, 30.6591];
+
+const mkIcon = (color, size=12, dashed=false) => L.divIcon({
+  className:'',
+  html:`<div style="width:${size}px;height:${size}px;background:${color};border:2.5px solid ${dashed?'#7f8c8d':'white'};border-style:${dashed?'dashed':'solid'};border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.3)"></div>`,
+  iconSize:[size,size], iconAnchor:[size/2,size/2]
+});
+
+// Fabrika marker
+L.marker(FACTORY, {icon: L.divIcon({
+  className:'',
+  html:`<div style="width:22px;height:22px;background:#c0392b;border:3px solid white;border-radius:50%;box-shadow:0 2px 10px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;font-size:11px">🏭</div>`,
+  iconSize:[22,22], iconAnchor:[11,11]
+})}).addTo(map).bindPopup('<b>🏭 Teknika Plast</b><br><small>75. Yıl OSB, 32. Cadde No:26<br>Odunpazarı / Eskişehir</small>');
+
+// Tepebaşı + Odunpazarı durakları (mavi)
+const cityStops = [
+  {n:'Esentepe', c:[39.788,30.491]},
+  {n:'Şirintepe', c:[39.784,30.496]},
+  {n:'Çamlıca', c:[39.780,30.503]},
+  {n:'Akarbaşı', c:[39.790,30.485]},
+  {n:'Ertuğrulgazi', c:[39.784,30.512]},
+  {n:'Sazova', c:[39.782,30.492]},
+  {n:'Anadolu Üniversitesi', c:[39.770,30.479]},
+  {n:'ESPARK', c:[39.771,30.475]},
+  {n:'Opera', c:[39.778,30.529]},
+  {n:'Gaffar Okkan', c:[39.779,30.519]},
+  {n:'Bursa Caddesi', c:[39.776,30.524]},
+  {n:'Birlik Caddesi', c:[39.773,30.516]},
+  {n:'Ümit Hastanesi', c:[39.774,30.509]},
+  {n:'Radar', c:[39.782,30.534]},
+  {n:'Alafırın', c:[39.776,30.494]},
+  {n:'Turgut Reis Meslek Lisesi', c:[39.772,30.488]},
+  {n:'Kanal 26', c:[39.783,30.528]},
+  {n:'Emek', c:[39.757,30.547]},
+  {n:'Yenikent', c:[39.742,30.546]},
+  {n:'Ihlamurkent', c:[39.738,30.543]},
+  {n:'Vadışehir', c:[39.751,30.552]},
+  {n:'Orhangazi', c:[39.762,30.538]},
+  {n:'Göztepe', c:[39.765,30.534]},
+  {n:'Atatürk Lisesi', c:[39.768,30.529]},
+  {n:'Salih Seki Lisesi', c:[39.761,30.535]},
+  {n:'TOKİ', c:[39.748,30.531]},
+  {n:'Erenköy', c:[39.754,30.557]},
+  {n:'Ertaş', c:[39.748,30.553]},
+  {n:'Efeler Parkı', c:[39.751,30.561]},
+  {n:'Hyundai', c:[39.755,30.568]},
+  {n:'Sanayi Işıklar', c:[39.758,30.573]},
+  {n:'İlahi Camii', c:[39.744,30.545]},
+  {n:'TOKİ 3-4 Etap', c:[39.736,30.528]},
+  {n:'Karacan Petrol', c:[39.730,30.523]},
+  {n:'Şantiye', c:[39.726,30.519]},
+  {n:'Adliye', c:[39.769,30.524]}
+];
+
+cityStops.forEach(s => {
+  L.marker(s.c, {icon: mkIcon('#2980b9',11)})
+    .addTo(map)
+    .bindPopup(`<b>🚌 ${s.n}</b><br><small>Tepebaşı / Odunpazarı Hattı</small>`);
+});
+
+// Çifteler (turuncu, büyük)
+L.marker([39.372,30.538], {icon: mkIcon('#e67e22',14)})
+  .addTo(map)
+  .bindPopup('<b>🚌 Çifteler İlçe Merkezi</b><br><small>Uzak İlçe Servisi</small>');
+
+// Potansiyel bölgeler (gri, kesikli)
+[
+  {n:'İnönü (Potansiyel)', c:[39.851,30.157]},
+  {n:'Seyitgazi (Potansiyel)', c:[39.444,30.693]},
+  {n:'Sivrihisar (Potansiyel)', c:[39.452,31.534]},
+].forEach(p => {
+  L.marker(p.c, {icon: mkIcon('#bdc3c7',11,true)})
+    .addTo(map)
+    .bindPopup(`<b>⏳ ${p.n}</b><br><small>Yoğun talep halinde servis açılabilir</small>`);
+});
+
+// Haritayı tüm noktalara sığdır
+map.fitBounds([
+  [39.37, 30.15], [39.80, 31.60]
+], {padding:[20,20]});
+
+} // end map init
+
+// CONDITIONAL
+document.querySelectorAll('input[name="hasExp"]').forEach(r=>r.addEventListener('change',()=>{
+  document.getElementById('expDetail').classList.toggle('show',r.value==='Evet'&&r.checked);
+}));
+document.querySelectorAll('input[name="healthOk"]').forEach(r=>r.addEventListener('change',()=>{
+  document.getElementById('hlthDetail').classList.toggle('show',r.value==='Evet'&&r.checked);
+}));
+
+// FORM
+const WEBHOOK='https://n8n.arcloom.io/webhook/teknikaplast-eskisehir-basvuru';
+const gv=id=>{ const e=document.getElementById(id); return e?e.value.trim():''; };
+const gr=name=>{ const e=document.querySelector(`input[name="${name}"]:checked`); return e?e.value:''; };
+function setErr(id,show){
+  const e=document.getElementById('e-'+id); if(e)e.classList.toggle('show',show);
+  const i=document.getElementById(id); if(i)i.classList.toggle('err',show);
+}
+function setRadioErr(name,show){
+  const e=document.getElementById('e-'+name); if(e)e.classList.toggle('show',show);
+}
+
+document.getElementById('appForm').addEventListener('submit',async function(ev){
+  ev.preventDefault(); let ok=true;
+  const fields=['firstName','lastName','birthDate','phone','district','neighborhood','education','schoolName','source'];
+  const radios=['cinsiyet','marital','hasExp','shiftOk','satOk','sunOk','healthOk'];
+  fields.forEach(f=>{ const v=gv(f); setErr(f,!v); if(!v)ok=false; });
+  radios.forEach(r=>{ const v=gr(r); setRadioErr(r,!v); if(!v)ok=false; });
+
+  // KVKK
+  const kvkk = document.getElementById('kvkkCheck');
+  const kvkkErr = document.getElementById('e-kvkk');
+  const kvkkBox = kvkk.closest('.kvkk-box');
+  if(!kvkk.checked){ kvkkErr.classList.add('show'); kvkkBox.classList.add('err-box'); ok=false; }
+  else { kvkkErr.classList.remove('show'); kvkkBox.classList.remove('err-box'); }
+
+  // Yaş kontrolü: 18–50
+  const birthVal = gv('birthDate');
+  if (birthVal) {
+    const birthD = new Date(birthVal);
+    const today = new Date();
+    const age = Math.floor((today - birthD) / (365.25 * 24 * 60 * 60 * 1000));
+    if (age < 18) {
+      setErr('birthDate', true);
+      document.getElementById('e-birthDate').textContent = '18 yaşından büyük olmanız gerekmektedir.';
+      ok = false;
+    } else if (age > 50) {
+      setErr('birthDate', true);
+      document.getElementById('e-birthDate').textContent = '50 yaşından küçük olmanız gerekmektedir.';
+      ok = false;
+    }
+  }
+
+  // Telefon kontrolü
+  const phoneVal = gv('phone').replace(/[\s\-]/g, '');
+  const phoneOk = /^(05)[0-9]{9}$/.test(phoneVal);
+  if (!phoneOk) {
+    setErr('phone', true);
+    document.getElementById('e-phone').textContent = 'Geçerli telefon giriniz (05XX XXX XX XX)';
+    ok = false;
+  } else { setErr('phone', false); }
+
+  if(!ok){ document.querySelector('.ferr.show')?.closest('.field,.form-sec')?.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+
+  const payload={
+    cinsiyet:gr('cinsiyet'),
+    ad:gv('firstName'), soyad:gv('lastName'), dogumTarihi:gv('birthDate'),
+    telefon:gv('phone'), ilce:gv('district'), mahalle:gv('neighborhood'),
+    medeniDurum:gr('marital'), mezuniyet:gv('education'), okul:gv('schoolName'),
+    uretimDeneyimi:gr('hasExp'), deneyimDetay:gv('expText'),
+    vardiyaUygun:gr('shiftOk'), cumartesiUygun:gr('satOk'), pazarMesai:gr('sunOk'),
+    saglikDurumu:gr('healthOk'), saglikDetay:gv('hlthText'),
+    ilaniNeredenOgrendin:gv('source'), ekBilgi:gv('extraInfo'),
+    fabrika:'Eskisehir',
+    basvuruZamani:new Date().toLocaleString('tr-TR')
+  };
+
+  document.getElementById('loading').classList.add('active');
+
+  fetch(WEBHOOK, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  }).catch(() => {}).finally(() => {
+    document.getElementById('loading').classList.remove('active');
+    showSuccess();
+  });
+});
+
+function showSuccess(){
+  document.querySelectorAll('.form-sec,.submit-wrap').forEach(el=>el.style.display='none');
+  document.querySelector('.form-head p').textContent='Başvurunuz tamamlandı.';
+  document.getElementById('success-screen').style.display='block';
+  document.getElementById('success-screen').scrollIntoView({behavior:'smooth'});
+}
+}); // DOMContentLoaded
+</script>
+</body>
+</html>
